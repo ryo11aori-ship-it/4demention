@@ -1,0 +1,41 @@
+name: Unity Build (Windows)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Unity packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Packages/manifest.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Setup Unity Cache Server (optional)
+        run: echo "No-op"
+
+      - name: Unity Builder - Windows
+        uses: game-ci/unity-builder@v4
+        with:
+          targetPlatform: StandaloneWindows64
+          unityVersion: 2021.3.0f1
+          projectPath: .
+          buildName: 4DViewer
+          buildPath: builds/windows
+          buildMethod: ''
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 4DViewer-windows
+          path: builds/windows
